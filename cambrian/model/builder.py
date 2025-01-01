@@ -16,14 +16,19 @@
 import os
 import warnings
 
-from transformers import AutoTokenizer, AutoModelForCausalLM, AutoConfig, BitsAndBytesConfig
 import torch
-from cambrian.constants import DEFAULT_IMAGE_PATCH_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN
-
 from ezcolorlog import root_logger as logger
+from transformers import (AutoConfig, AutoModelForCausalLM, AutoTokenizer,
+                          BitsAndBytesConfig)
 
-from cambrian.model.language_model.cambrian_llama import CambrianLlamaForCausalLM
-from cambrian.model.language_model.cambrian_mistral import CambrianMistralForCausalLM
+from cambrian.constants import (DEFAULT_IM_END_TOKEN, DEFAULT_IM_START_TOKEN,
+                                DEFAULT_IMAGE_PATCH_TOKEN)
+from cambrian.model.language_model.cambrian_gemma import \
+    CambrianGemmaForCausalLM
+from cambrian.model.language_model.cambrian_llama import \
+    CambrianLlamaForCausalLM
+from cambrian.model.language_model.cambrian_mistral import \
+    CambrianMistralForCausalLM
 
 
 def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, load_4bit=False, device_map="auto", device="cuda", use_flash_attn=False, **kwargs):
@@ -53,7 +58,8 @@ def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, l
         if 'lora' in model_name.lower() and model_base is None:
             warnings.warn('There is `lora` in model name but no `model_base` is provided. If you are loading a LoRA model, please provide the `model_base` argument. Detailed instruction: https://github.com/haotian-liu/LLaVA#launch-a-model-worker-lora-weights-unmerged.')
         if 'lora' in model_name.lower() and model_base is not None:
-            from cambrian.model.language_model.cambrian_llama import CambrianConfig
+            from cambrian.model.language_model.cambrian_llama import \
+                CambrianConfig
             lora_cfg_pretrained = CambrianConfig.from_pretrained(model_path)
             tokenizer = AutoTokenizer.from_pretrained(model_base, use_fast=False)
             logger.info('Loading Cambrian from base model...')
@@ -107,9 +113,18 @@ def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, l
                     **kwargs
                 )
             elif 'phi3' in model_name.lower():
-                from cambrian.model.language_model.cambrian_phi3 import CambrianPhi3ForCausalLM
+                from cambrian.model.language_model.cambrian_phi3 import \
+                    CambrianPhi3ForCausalLM
                 tokenizer = AutoTokenizer.from_pretrained(model_path)
                 model = CambrianPhi3ForCausalLM.from_pretrained(
+                    model_path,
+                    low_cpu_mem_usage=True,
+                    use_flash_attention_2=False,
+                    **kwargs
+                )
+            elif 'gemma' in model_name.lower():
+                tokenizer = AutoTokenizer.from_pretrained(model_path)
+                model = CambrianGemmaForCausalLM.from_pretrained(
                     model_path,
                     low_cpu_mem_usage=True,
                     use_flash_attention_2=False,

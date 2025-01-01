@@ -25,49 +25,44 @@ import torch.nn.functional as F
 import torch.utils.checkpoint
 from torch import nn
 from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss, MSELoss
-
 from transformers.activations import ACT2FN
 from transformers.cache_utils import Cache, DynamicCache
-from transformers.modeling_attn_mask_utils import _prepare_4d_causal_attention_mask
-from transformers.modeling_outputs import (
-    BaseModelOutputWithPast,
-    CausalLMOutputWithPast,
-    SequenceClassifierOutputWithPast,
-    TokenClassifierOutput,
-)
+from transformers.modeling_attn_mask_utils import \
+    _prepare_4d_causal_attention_mask
+from transformers.modeling_outputs import (BaseModelOutputWithPast,
+                                           CausalLMOutputWithPast,
+                                           SequenceClassifierOutputWithPast,
+                                           TokenClassifierOutput)
 from transformers.modeling_utils import PreTrainedModel
-from transformers.utils import (
-    add_code_sample_docstrings,
-    add_start_docstrings,
-    add_start_docstrings_to_model_forward,
-    is_flash_attn_2_available,
-    is_flash_attn_greater_or_equal_2_10,
-    logging,
-    replace_return_docstrings,
-)
-from .configuration_phi3 import Phi3Config
+from transformers.utils import (add_code_sample_docstrings,
+                                add_start_docstrings,
+                                add_start_docstrings_to_model_forward,
+                                is_flash_attn_2_available,
+                                is_flash_attn_greater_or_equal_2_10, logging,
+                                replace_return_docstrings)
 
 from cambrian.utils import IS_XLA_AVAILABLE
 
+from .configuration_phi3 import Phi3Config
 
 logger = logging.get_logger(__name__)
 
 # Transformers scans dependencies in the modeling file, causing issues on conditional loading. The regex only ignores try/catch blocks, but not if statements
 # if is_flash_attn_2_available():
 _flash_supports_window_size = False
-try:
-    from flash_attn import flash_attn_func, flash_attn_varlen_func
-    from flash_attn.bert_padding import index_first_axis, pad_input, unpad_input  # noqa
+# try:
+#     from flash_attn import flash_attn_func, flash_attn_varlen_func
+#     from flash_attn.bert_padding import index_first_axis, pad_input, unpad_input  # noqa
 
-    _flash_supports_window_size = "window_size" in list(inspect.signature(flash_attn_func).parameters)
-except ImportError as error:
-    logger.warning(
-        f"`flash-attention` package not found, consider installing for better performance: {error}."
-    )
-    if not _flash_supports_window_size:
-        logger.warning(
-            "Current `flash-attenton` does not support `window_size`. Either upgrade or use `attn_implementation='eager'`."
-        )
+#     _flash_supports_window_size = "window_size" in list(inspect.signature(flash_attn_func).parameters)
+# except ImportError as error:
+#     logger.warning(
+#         f"`flash-attention` package not found, consider installing for better performance: {error}."
+#     )
+#     if not _flash_supports_window_size:
+#         logger.warning(
+#             "Current `flash-attenton` does not support `window_size`. Either upgrade or use `attn_implementation='eager'`."
+#         )
 
 _CHECKPOINT_FOR_DOC = "microsoft/Phi-3-mini-4k-instruct"
 _CONFIG_FOR_DOC = "Phi3Config"

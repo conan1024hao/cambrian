@@ -42,7 +42,6 @@ import random
 fs = gcsfs.GCSFileSystem(project='nyu-vision-lab')
 
 HOME_DIR = os.path.expanduser("~") + "/"
-print("HOME_DIR = ", HOME_DIR)
 
 def maybe_zero_3(param, ignore_status=False, name=None):
     from deepspeed import zero
