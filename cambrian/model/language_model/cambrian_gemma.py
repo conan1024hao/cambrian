@@ -37,14 +37,14 @@ from ..cambrian_arch import CambrianMetaForCausalLM, CambrianMetaModel
 
 logger = logging.get_logger(__name__)
 
-class CambrianConfig(GemmaConfig):
+class CambrianGemmaConfig(GemmaConfig):
     model_type = "cambrian_gemma"
 
     debug = "debug"
 
 
 class CambrianGemmaModel(CambrianMetaModel, GemmaModel):
-    config_class = CambrianConfig
+    config_class = CambrianGemmaConfig
 
     def __init__(self, config: GemmaConfig):
         super(CambrianGemmaModel, self).__init__(config)
