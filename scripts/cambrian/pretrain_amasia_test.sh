@@ -8,7 +8,7 @@ export WANDB_API_KEY="5b8322df11b04a8895325a5bf6ef8cbba0dd64a2" &&
 export WANDB_ENTITY=conan1024hao &&
 export WANDB_PROJECT=amasia &&
 
-export MODEL_PATH="google/gemma-2-9b-it" &&
+export MODEL_PATH="google/gemma-2-2b-it" &&
 export DATA_PATH="/home/$USER/cambrian/Cambrian1k.jsonl" &&
 export IMAGE_FOLDER="/mnt/disks/storage/data/finetune_data" &&
 export CKPT_NAME="amasia_test" &&
@@ -19,8 +19,8 @@ python cambrian/train/train_tpu.py \
     --version amasia_gemma \
     --data_path $DATA_PATH \
     --image_folder $IMAGE_FOLDER \
-    --vision_tower_aux_list '["siglip/CLIP-ViT-SO400M-14-384", "openai/clip-vit-large-patch14-336", "facebook/dinov2-giant-res378", "clip-convnext-XXL-multi-stage"]' \
-    --vision_tower_aux_token_len_list '[576, 576, 576, 9216]' \
+    --vision_tower_aux_list '["siglip/CLIP-ViT-SO400M-14-384"]' \
+    --vision_tower_aux_token_len_list '[576]' \
     --image_token_len 576 \
     --num_query_group 1 \
     --query_num_list '[576]' \
