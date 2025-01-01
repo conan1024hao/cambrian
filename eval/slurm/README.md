@@ -1,3 +1,9 @@
+---
+noteId: "86254951c7c511ef9d9a7bd88356d9f3"
+tags: []
+
+---
+
 # MLLM Slurm Eval
 
 ## HPC Setup

@@ -171,14 +171,15 @@ class Conversation:
                 else:
                     ret += ""
         elif self.sep_style == SeparatorStyle.GEMMA:
-            ret = self.system + self.sep
-            for role, message in messages:
+            seps = [self.sep, self.sep2]
+            ret = self.system + seps[0]
+            for i, (role, message) in enumerate(messages):
                 if message:
                     if type(message) is tuple:
                         message, _, _ = message
-                    ret += role + message + self.sep
+                    ret += "<start_of_turn>" + role + "\n" + message + "<end_of_turn>\n" + seps[i % 2]
                 else:
-                    ret += role
+                    ret += "<start_of_turn>" + role + "\n"
         elif self.sep_style == SeparatorStyle.PHI3:
             ret = self.system + self.sep
             for i, (role, message) in enumerate(messages):
@@ -426,6 +427,18 @@ conv_gemma = Conversation(
     sep_style=SeparatorStyle.GEMMA,
     sep="<end_of_turn>\n",
 )
+conv_amasia_gemma = Conversation(
+    system="""You are Amasia, a highly intelligent multimodal AI trained by NYU Vision X. 
+    As a multimodal AI, you have the ability to process and analyze images. Whenever an image is present in the conversation, very carefully examine it and consider its content when formulating your response.
+    You should give concise responses to very simple questions, but provide thorough responses to more complex and open-ended questions. """,
+    roles=("user", "model"),
+    version="amasia_gemma",
+    messages=(),
+    offset=0,
+    sep_style=SeparatorStyle.GEMMA,
+    sep="",
+    sep2="<eos>",
+)
 
 conv_cambrian_plain = Conversation(
     system="",
@@ -602,8 +615,8 @@ conv_phi3 = Conversation(
 
 # default_conversation = conv_chatml_direct
 # default_conversation = conv_vicuna_v1
-
-default_conversation = conv_llama_3
+# default_conversation = conv_llama_3
+default_conversation = conv_amasia_gemma
 
 conv_templates = {
     "default": conv_vicuna_v0,
@@ -632,6 +645,7 @@ conv_templates = {
     "cambrian_llama_2": conv_cambrian_llama_2,
     "mpt": conv_mpt,
     "conv_gemma": conv_gemma,
+    "amasia_gemma": conv_amasia_gemma,
     "phi3": conv_phi3,
 }
 

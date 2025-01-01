@@ -37,15 +37,13 @@ from torch.utils.data import Dataset
 
 import cambrian
 from cambrian import conversation as conversation_lib
-from cambrian.constants import (
-    DEFAULT_IM_END_TOKEN,
-    DEFAULT_IM_START_TOKEN,
-    DEFAULT_IMAGE_TOKEN,
-    IGNORE_INDEX,
-    IMAGE_TOKEN_INDEX,
-)
-from cambrian.mm_utils import tokenizer_image_token, tokenizer_image_token_llama3
-from cambrian.model import CambrianLlamaForCausalLM, CambrianMistralForCausalLM
+from cambrian.constants import (DEFAULT_IM_END_TOKEN, DEFAULT_IM_START_TOKEN,
+                                DEFAULT_IMAGE_TOKEN, IGNORE_INDEX,
+                                IMAGE_TOKEN_INDEX)
+from cambrian.mm_utils import (tokenizer_image_token,
+                               tokenizer_image_token_llama3)
+from cambrian.model import (CambrianGemmaForCausalLM, CambrianLlamaForCausalLM,
+                            CambrianMistralForCausalLM)
 from cambrian.model.language_model.cambrian_phi3 import CambrianPhi3ForCausalLM
 from cambrian.train.cambrian_trainer import CambrianTrainer
 from cambrian.train.wandb_nan_alert_callback import NanInfAlertWandbCallback
@@ -933,6 +931,88 @@ def preprocess_phi3(
         labels=targets,
     )
 
+def preprocess_gemma(
+    sources,
+    tokenizer: transformers.PreTrainedTokenizer,
+    has_image: bool = False
+) -> Dict:
+    conv = conversation_lib.default_conversation.copy()
+    roles = {"human": conv.roles[0], "gpt": conv.roles[1]}
+
+    # Apply prompt templates
+    conversations = []
+    for i, source in enumerate(sources):
+        if roles[source[0]["from"]] != conv.roles[0]:
+            # Skip the first one if it is not from human
+            source = source[1:]
+
+        conv.messages = []
+        for j, sentence in enumerate(source):
+            role = roles[sentence["from"]]
+            assert role == conv.roles[j % 2], f"{i}"
+            conv.append_message(role, sentence["value"])
+        conversations.append(conv.get_prompt())
+
+    # Tokenize conversations
+
+    if has_image:
+        input_ids = torch.stack([tokenizer_image_token(prompt, tokenizer, return_tensors='pt') for prompt in conversations], dim=0)
+    else:
+        input_ids = tokenizer(
+            conversations,
+            return_tensors="pt",
+            padding="longest",
+            max_length=tokenizer.model_max_length,
+            truncation=True,
+        ).input_ids
+
+    targets = input_ids.clone()
+    assert conv.sep_style == conversation_lib.SeparatorStyle.GEMMA
+
+    # Mask targets
+    sep = "<start_of_turn>" + conv.sep + conv.roles[1] + "\n"
+    for conversation, target in zip(conversations, targets):
+        total_len = int(target.ne(tokenizer.pad_token_id).sum())
+
+        rounds = conversation.split(conv.sep2)
+        cur_len = 1
+        target[:cur_len] = IGNORE_INDEX
+        for i, rou in enumerate(rounds):
+            if rou == "":
+                break
+
+            parts = rou.split(sep)
+            if len(parts) != 2:
+                print(f"WARNING: parts!=: {parts}")
+                break
+            parts[0] += sep
+
+            if has_image:
+                round_len = len(tokenizer_image_token(rou, tokenizer))
+                instruction_len = len(tokenizer_image_token(parts[0], tokenizer)) - 1 # exclude <bos>
+            else:
+                round_len = len(tokenizer(rou).input_ids)
+                instruction_len = len(tokenizer(parts[0]).input_ids) - 1 # exclude <bos>
+
+            target[cur_len : cur_len + instruction_len] = IGNORE_INDEX
+
+            cur_len += round_len
+        target[cur_len:] = IGNORE_INDEX
+
+        if cur_len < tokenizer.model_max_length:
+            if cur_len != total_len:
+                target[:] = IGNORE_INDEX
+                print(
+                    f"WARNING: tokenization mismatch: {cur_len} vs. {total_len}."
+                    f" (ignored)"
+                )
+
+    return dict(
+        input_ids=input_ids,
+        labels=targets,
+    )
+
+
 
 def preprocess(
     sources: Sequence[str],
@@ -961,6 +1041,11 @@ def preprocess(
         == conversation_lib.SeparatorStyle.LLAMA_3
     ):
         return preprocess_llama_3(sources, tokenizer, has_image=has_image)
+    if (
+        conversation_lib.default_conversation.sep_style
+        == conversation_lib.SeparatorStyle.GEMMA
+    ):
+        return preprocess_gemma(sources, tokenizer, has_image=has_image)
     if conversation_lib.default_conversation.version.startswith("v1"):
         return preprocess_v1(sources, tokenizer, has_image=has_image)
     if conversation_lib.default_conversation.version == "mpt":
@@ -1740,6 +1825,7 @@ def train(INDEX, attn_implementation=None):
 
     transformers.models.llama.modeling_llama.LlamaRMSNorm.forward = forward
     transformers.models.mistral.modeling_mistral.MistralRMSNorm.forward = forward
+    transformers.models.gemma.modeling_gemma.GemmaRMSNorm.forward = forward
 
     def new_forward_conv(self, input):
         if self.bias is None:
@@ -1853,6 +1939,18 @@ def train(INDEX, attn_implementation=None):
             cambrian.model.language_model.phi3.modeling_phi3.Phi3RMSNorm.forward = (
                 forward
             )
+        elif "gemma" in model_name.lower():
+            logger.warning(
+                f"Vision tower, loading CambrianGemmaForCausalLM: {model_args.model_name_or_path}"
+            )
+            model = CambrianGemmaForCausalLM.from_pretrained(
+                model_name,
+                cache_dir=training_args.cache_dir,
+                do_sample=True,
+                torch_dtype=(torch.bfloat16 if training_args.bf16 else None),
+                **bnb_model_from_pretrained_args,
+            )
+
         else:
             logger.warning(
                 f"Vision tower, loading CambrianLlamaForCausalLM: {model_args.model_name_or_path}"

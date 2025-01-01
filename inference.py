@@ -1,28 +1,33 @@
 import argparse
-import os
 import json
+import math
+import os
 import random
 import re
-import torch
-import numpy as np
-from tqdm import tqdm
-import shortuuid
 
-from cambrian.constants import IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN
-from cambrian.conversation import conv_templates, SeparatorStyle
+import numpy as np
+import shortuuid
+import torch
+from PIL import Image
+from torch.utils.data import DataLoader, Dataset
+from tqdm import tqdm
+
+from cambrian.constants import (DEFAULT_IM_END_TOKEN, DEFAULT_IM_START_TOKEN,
+                                DEFAULT_IMAGE_TOKEN, IMAGE_TOKEN_INDEX)
+from cambrian.conversation import SeparatorStyle, conv_templates
+from cambrian.mm_utils import (get_model_name_from_path, process_images,
+                               tokenizer_image_token)
 from cambrian.model.builder import load_pretrained_model
 from cambrian.utils import disable_torch_init
-from cambrian.mm_utils import tokenizer_image_token, process_images, get_model_name_from_path
-from torch.utils.data import Dataset, DataLoader
-
-from PIL import Image
-import math
 
 # cambrian-phi3-3b
 # conv_mode = "phi3"
 
 # cambrian-8b
-conv_mode = "llama_3" 
+# conv_mode = "llama_3" 
+
+# amasia
+conv_mode = "amasia_gemma"
 
 # cambrian-34b
 # conv_mode = "chatml_direct"
@@ -50,9 +55,11 @@ def process(image, question, tokenizer, image_processor, model_config):
 
     return input_ids, image_tensor, image_size, prompt
 
-import torch
-import numpy as np
 import random
+
+import numpy as np
+import torch
+
 seed = 42
 torch.manual_seed(seed)
 np.random.seed(seed)

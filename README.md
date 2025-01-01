@@ -1,3 +1,9 @@
+---
+noteId: "86252242c7c511ef9d9a7bd88356d9f3"
+tags: []
+
+---
+
 <div align="center">
 
 #  🪼 *Cambrian-1*:<br> A Fully Open, Vision-Centric Exploration of Multimodal LLMs
