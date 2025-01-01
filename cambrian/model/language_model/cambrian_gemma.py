@@ -501,5 +501,5 @@ class CambrianGemmaForCausalLM(GemmaForCausalLM, CambrianMetaForCausalLM):
         return inputs
 
 
-AutoConfig.register("cambrian_gemma", CambrianConfig)
-AutoModelForCausalLM.register(CambrianConfig, CambrianGemmaForCausalLM)
+AutoConfig.register("cambrian_gemma", CambrianGemmaConfig)
+AutoModelForCausalLM.register(CambrianGemmaConfig, CambrianGemmaForCausalLM)
