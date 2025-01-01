@@ -19,8 +19,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss, MSELoss
-from transformers import (AutoConfig, AutoModelForCausalLM, GemmaConfig,
-                          GemmaForCausalLM, GemmaModel)
+from transformers import (AutoConfig, AutoModelForCausalLM, Gemma2Config,
+                          Gemma2ForCausalLM, Gemma2Model)
 from transformers.cache_utils import Cache, DynamicCache
 from transformers.generation.utils import GenerateOutput
 from transformers.modeling_attn_mask_utils import (
@@ -37,16 +37,16 @@ from ..cambrian_arch import CambrianMetaForCausalLM, CambrianMetaModel
 
 logger = logging.get_logger(__name__)
 
-class CambrianGemmaConfig(GemmaConfig):
+class CambrianGemmaConfig(Gemma2Config):
     model_type = "cambrian_gemma"
 
     debug = "debug"
 
 
-class CambrianGemmaModel(CambrianMetaModel, GemmaModel):
+class CambrianGemmaModel(CambrianMetaModel, Gemma2Model):
     config_class = CambrianGemmaConfig
 
-    def __init__(self, config: GemmaConfig):
+    def __init__(self, config: Gemma2Config):
         super(CambrianGemmaModel, self).__init__(config)
 
     def forward(
@@ -272,11 +272,11 @@ class CambrianGemmaModel(CambrianMetaModel, GemmaModel):
         )
 
 
-class CambrianGemmaForCausalLM(GemmaForCausalLM, CambrianMetaForCausalLM):
+class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
     config_class = CambrianGemmaConfig
 
     def __init__(self, config, spmd_debug=None, spmd_mesh=None, spmd_fsdp_sharding=None):
-        super(GemmaForCausalLM, self).__init__(config)
+        super(Gemma2ForCausalLM, self).__init__(config)
         
         config.spmd_debug = spmd_debug
         config.spmd_mesh = spmd_mesh
