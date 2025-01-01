@@ -273,7 +273,7 @@ class CambrianGemmaModel(CambrianMetaModel, GemmaModel):
 
 
 class CambrianGemmaForCausalLM(GemmaForCausalLM, CambrianMetaForCausalLM):
-    config_class = CambrianConfig
+    config_class = CambrianGemmaConfig
 
     def __init__(self, config, spmd_debug=None, spmd_mesh=None, spmd_fsdp_sharding=None):
         super(GemmaForCausalLM, self).__init__(config)
