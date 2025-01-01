@@ -1,32 +1,26 @@
+import dataclasses
+import io
+import json
 import os
+from typing import Dict, List, Optional, Union
+
+import gcsfs
+import numpy as np
 import torch
 import torch.nn as nn
-
-from torch.utils.data import Sampler
-
-import dataclasses
-import json
-from typing import Dict, List, Optional, Union
-import numpy as np
-import gcsfs
-from google.cloud import storage
-import io
 import torch_xla.core.xla_model as xm
-from torch.utils.data import DataLoader, Dataset, RandomSampler, SequentialSampler
-from transformers import Trainer
-from transformers.trainer import (
-    is_sagemaker_mp_enabled,
-    get_parameter_names,
-    has_length,
-    ALL_LAYERNORM_LAYERS,
-    logger,
-    is_torch_tpu_available
-)
-
 from ezcolorlog import root_logger as logger
+from google.cloud import storage
+from packaging import version
+from torch.utils.data import (DataLoader, Dataset, RandomSampler, Sampler,
+                              SequentialSampler)
+from transformers import Trainer
+from transformers.trainer import (ALL_LAYERNORM_LAYERS, get_parameter_names,
+                                  has_length, is_sagemaker_mp_enabled,
+                                  is_torch_xla_available, logger)
+
 from cambrian.utils import IS_XLA_AVAILABLE
 
-from packaging import version
 if is_sagemaker_mp_enabled():
     import smdistributed.modelparallel.torch as smp
     from smdistributed.modelparallel import __version__ as SMP_VERSION
@@ -34,14 +28,17 @@ if is_sagemaker_mp_enabled():
     IS_SAGEMAKER_MP_POST_1_10 = version.parse(SMP_VERSION) >= version.parse("1.10")
 
     from transformers.trainer_pt_utils import smp_forward_backward, smp_forward_only, smp_gather, smp_nested_concat
-from typing import List, Optional
 
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import (TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple,
+                    Union)
+
 from transformers.utils import is_apex_available
+
 if is_apex_available():
     from apex import amp
 
 import random
+
 fs = gcsfs.GCSFileSystem(project='nyu-vision-lab')
 
 HOME_DIR = os.path.expanduser("~") + "/"
@@ -176,7 +173,8 @@ def _fetch_gradients(optimizer, param_to_name, selected_module_names):
                         gradients.append(p.grad.data)
     return gradients
 
-from torch_xla.core.xla_model import xrt_world_size, all_reduce
+from torch_xla.core.xla_model import all_reduce, xrt_world_size
+
 REDUCE_SUM = 'sum'
 def reduce_gradients(optimizer, param_to_name, selected_module_names, groups=None, pin_layout=True):
     count = xrt_world_size()
@@ -640,7 +638,7 @@ class CambrianTrainer(Trainer):
 
     def _maybe_log_save_evaluate(self, tr_loss, model, trial, epoch, ignore_keys_for_eval):
         if self.control.should_log and self.state.global_step > self._globalstep_last_logged:
-            if is_torch_tpu_available():
+            if is_torch_xla_available():
                 import torch_xla.core.xla_model as xm
                 xm.mark_step()
 
