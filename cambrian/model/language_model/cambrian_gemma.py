@@ -50,7 +50,6 @@ class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
         config.spmd_mesh = spmd_mesh
         config.spmd_fsdp_sharding = spmd_fsdp_sharding
         self.model = CambrianGemmaModel(config)
-        self.pretraining_tp = config.pretraining_tp
         self.vocab_size = config.vocab_size
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
         self.spmd_mesh = spmd_mesh
