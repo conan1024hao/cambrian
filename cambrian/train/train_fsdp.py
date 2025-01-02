@@ -1842,9 +1842,6 @@ def train(INDEX, attn_implementation=None):
         return self._conv_forward(input, self.weight, self.bias.to(input.dtype))
 
     nn.Conv2d.forward = new_forward_conv
-    
-    # FIXME
-    model.config.num_hidden_layers = 2
 
     def new_forward_linear(self, input):
         if self.bias is None:
