@@ -213,13 +213,10 @@ class CambrianTrainer(Trainer):
             return super()._get_train_sampler()
 
     def training_step(self, model: nn.Module, inputs: Dict[str, Union[torch.Tensor, Any]], num_items_in_batch=None) -> torch.Tensor:
-        
-        logger.info("---training_step---1---", stacklevel=2) # FIXME
-        
         model.train()
         inputs = self._prepare_inputs(inputs)
         
-        plogger.info("---training_step---2---", stacklevel=2) # FIXME
+        assert False # FIXME
 
         if is_sagemaker_mp_enabled():
             loss_mb = smp_forward_backward(model, inputs, self.args.gradient_accumulation_steps)
@@ -236,8 +233,6 @@ class CambrianTrainer(Trainer):
                 scaled_loss.backward()
         else:
             self.accelerator.backward(loss)
-        
-        logger.info("---training_step---3---", stacklevel=2) # FIXME
             
         selected_module_names = ['vision_tower']
         # if self.args.unfreeze_mm_vision_tower:
