@@ -37,7 +37,7 @@ from ..cambrian_arch import CambrianMetaForCausalLM, CambrianMetaModel
 
 
 class CambrianGemmaConfig(Gemma2Config):
-    model_type = "cambrian_Gemma"
+    model_type = "cambrian_gemma"
 
 
 class CambrianGemmaModel(CambrianMetaModel, Gemma2Model):
@@ -296,7 +296,7 @@ class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
     def __init__(self, config):
         # super(Gemma2ForCausalLM, self).__init__(config)
         Gemma2ForCausalLM.__init__(self, config)
-        config.model_type = "cambrian_Gemma"
+        config.model_type = "cambrian_gemma"
         config.rope_scaling = None
 
         self.model = CambrianGemmaModel(config)
@@ -500,5 +500,5 @@ class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
         return inputs
 
 
-AutoConfig.register("cambrian_Gemma", CambrianGemmaConfig)
+AutoConfig.register("cambrian_gemma", CambrianGemmaConfig)
 AutoModelForCausalLM.register(CambrianGemmaConfig, CambrianGemmaForCausalLM)

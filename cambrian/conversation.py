@@ -655,7 +655,7 @@ conv_templates = {
     "v1_mmtag": conv_cambrian_v1_mmtag,
     "cambrian_llama_2": conv_cambrian_llama_2,
     "mpt": conv_mpt,
-    "conv_gemma": conv_gemma,
+    "gemma": conv_gemma_instruct,
     "amasia_gemma": conv_gemma_instruct,
     "phi3": conv_phi3,
 }

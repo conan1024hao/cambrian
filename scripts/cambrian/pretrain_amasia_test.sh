@@ -16,7 +16,7 @@ export CKPT_DIR="/home/$USER/$CKPT_NAME" &&
 
 python cambrian/train/train_tpu.py \
     --model_name_or_path $MODEL_PATH \
-    --version amasia_gemma \
+    --version gemma \
     --data_path $DATA_PATH \
     --image_folder $IMAGE_FOLDER \
     --vision_tower_aux_list '["siglip/CLIP-ViT-SO400M-14-384"]' \
