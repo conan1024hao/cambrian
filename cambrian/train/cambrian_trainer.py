@@ -215,6 +215,8 @@ class CambrianTrainer(Trainer):
     def training_step(self, model: nn.Module, inputs: Dict[str, Union[torch.Tensor, Any]], num_items_in_batch=None) -> torch.Tensor:
         model.train()
         inputs = self._prepare_inputs(inputs)
+        
+        print("---training step began---") # FIXME
 
         if is_sagemaker_mp_enabled():
             loss_mb = smp_forward_backward(model, inputs, self.args.gradient_accumulation_steps)

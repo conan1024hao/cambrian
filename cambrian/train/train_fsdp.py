@@ -1617,6 +1617,8 @@ def make_supervised_data_module(
     data_collator_kwargs = {
         "tokenizer": tokenizer,
     }
+    
+    print("---dataset processed---") # FIXME 
 
     if hasattr(data_args, "image_token_len"):
         data_collator_kwargs["image_token_len"] = data_args.image_token_len
@@ -1954,7 +1956,7 @@ def train(INDEX, attn_implementation=None):
                 f"Vision tower, loading CambrianGemmaForCausalLM: {model_args.model_name_or_path}"
             )
             config = CambrianGemmaConfig.from_pretrained(model_name)
-            config.num_hidden_layers = 2 # FIXME
+            config.num_hidden_layers = 1 # FIXME
             model = CambrianGemmaForCausalLM.from_pretrained(
                 model_name,
                 config=config,
