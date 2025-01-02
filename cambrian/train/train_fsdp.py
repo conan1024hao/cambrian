@@ -933,34 +933,30 @@ def preprocess_phi3(
     )
 
 
-def preprocess_gemma(
-    sources,
-    tokenizer: transformers.PreTrainedTokenizer,
-    has_image: bool = False
-) -> Dict:
-    conv = conversation_lib.default_conversation.copy()
-    roles = {"human": conv.roles[0], "gpt": conv.roles[1]}
+
+def preprocess_gemma(sources: List[List[Dict[str, str]]], tokenizer: transformers.PreTrainedTokenizer, has_image: bool = False) -> Dict:
+    conv: conversation_lib.Conversation = conversation_lib.default_conversation.copy()
+    roles: Dict[str, str] = {"human": conv.roles[0], "gpt": conv.roles[1]}
 
     # Apply prompt templates
-    conversations = []
+    conversations: List[str] = []
     for i, source in enumerate(sources):
         if roles[source[0]["from"]] != conv.roles[0]:
             # Skip the first one if it is not from human
-            source = source[1:]
+            source: List[Dict[str, str]] = source[1:]
 
         conv.messages = []
         for j, sentence in enumerate(source):
-            role = roles[sentence["from"]]
+            role: str = roles[sentence["from"]]
             assert role == conv.roles[j % 2], f"{i}"
             conv.append_message(role, sentence["value"])
         conversations.append(conv.get_prompt())
 
     # Tokenize conversations
-
     if has_image:
-        input_ids = torch.stack([tokenizer_image_token(prompt, tokenizer, return_tensors='pt') for prompt in conversations], dim=0)
+        input_ids: torch.Tensor = torch.stack([tokenizer_image_token(prompt, tokenizer, return_tensors="pt") for prompt in conversations], dim=0)
     else:
-        input_ids = tokenizer(
+        input_ids: torch.Tensor = tokenizer(
             conversations,
             return_tensors="pt",
             padding="longest",
@@ -968,57 +964,53 @@ def preprocess_gemma(
             truncation=True,
         ).input_ids
 
-    targets = input_ids.clone()
+    targets: torch.Tensor = input_ids.clone()
     assert conv.sep_style == conversation_lib.SeparatorStyle.GEMMA
 
-    # Mask targets
-    sep = "<start_of_turn>" + conv.sep + conv.roles[1] + "\n"
+    # Mask target
+    sep: str = conv.sep + conv.roles[1]
     for conversation, target in zip(conversations, targets):
-        total_len = int(target.ne(tokenizer.pad_token_id).sum())
+        total_len: int = int(target.ne(tokenizer.pad_token_id).sum())
 
-        rounds = conversation.split(conv.sep2)
-        cur_len = 1
+        rounds: List[str] = conversation.split(conv.sep)
+        re_rounds = []
+        for conv_idx in range(0, len(rounds), 2):
+            re_rounds.append(conv.sep.join(rounds[conv_idx : conv_idx + 2]))
+
+        cur_len = 1  # Ignore <bos>
         target[:cur_len] = IGNORE_INDEX
-        for i, rou in enumerate(rounds):
+        for i, rou in enumerate(re_rounds):
             if rou == "":
                 break
 
             parts = rou.split(sep)
             if len(parts) != 2:
-                print(f"WARNING: parts!=: {parts}")
                 break
-            parts[0] += sep
+            parts[0] += sep  # Re-append sep because split on this
+            # Now "".join(parts)==rou
 
             if has_image:
-                round_len = len(tokenizer_image_token(rou, tokenizer))
-                instruction_len = len(tokenizer_image_token(parts[0], tokenizer)) - 1 # exclude <bos>
+                round_len = len(tokenizer_image_token(rou, tokenizer)) - 1  # Ignore <bos>
+                instruction_len = len(tokenizer_image_token(parts[0], tokenizer)) - 1  # Ignore <bos>
             else:
-                round_len = len(tokenizer(rou).input_ids)
-                instruction_len = len(tokenizer(parts[0]).input_ids) - 1 # exclude <bos>
+                round_len = len(tokenizer(rou).input_ids) - 1  # Ignore <bos>
+                instruction_len = len(tokenizer(parts[0]).input_ids) - 1  # Ignore <bos>
 
+            round_len += 2  # sep: <end_of_turn>\n takes 2 tokens
             target[cur_len : cur_len + instruction_len] = IGNORE_INDEX
-
             cur_len += round_len
+
         target[cur_len:] = IGNORE_INDEX
 
         if cur_len < tokenizer.model_max_length:
             if cur_len != total_len:
                 target[:] = IGNORE_INDEX
-                print(
-                    f"WARNING: tokenization mismatch: {cur_len} vs. {total_len}."
-                    f" (ignored)"
-                )
-
-    # FIXME
-    print("Gemma data preprocessing:")
-    print("input_ids:", input_ids)
-    print("labels:", targets)
+                print(f"warning: tokenization mismatch: {cur_len} vs. {total_len}." f" (ignored)")
 
     return dict(
         input_ids=input_ids,
         labels=targets,
     )
-
 
 
 def preprocess(
