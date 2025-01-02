@@ -1040,11 +1040,6 @@ def preprocess(
         == conversation_lib.SeparatorStyle.LLAMA_3
     ):
         return preprocess_llama_3(sources, tokenizer, has_image=has_image)
-    if (
-        conversation_lib.default_conversation.sep_style
-        == conversation_lib.SeparatorStyle.GEMMA
-    ):
-        return preprocess_gemma(sources, tokenizer, has_image=has_image)
     if conversation_lib.default_conversation.version.startswith("v1"):
         return preprocess_v1(sources, tokenizer, has_image=has_image)
     if conversation_lib.default_conversation.version == "mpt":
@@ -1052,7 +1047,7 @@ def preprocess(
     if conversation_lib.default_conversation.version == "phi3":
         return preprocess_phi3(sources, tokenizer, has_image=has_image)
     if conversation_lib.default_conversation.version == "gemma":
-        return preprocess_gemma(sources, tokenizer, has_image=has_image)
+        return preprocess_mpt(sources, tokenizer, has_image=has_image)
 
     # add end signal and concatenate together
     conversations = []
