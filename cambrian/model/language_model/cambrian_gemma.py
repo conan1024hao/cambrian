@@ -366,6 +366,7 @@ class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
         )
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
+        import pdb; pdb.set_trace()
         # training
         if IS_XLA_AVAILABLE:
             # decoder outputs consists of (dec_features, layer_state, dec_hidden, dec_attn)
@@ -414,8 +415,6 @@ class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
                     output_hidden_states=output_hidden_states,
                     return_dict=return_dict,
                 )
-
-        import pdb; pdb.set_trace()
 
         hidden_states = outputs[0]
         logits = self.lm_head(hidden_states)
