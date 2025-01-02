@@ -323,8 +323,6 @@ class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
         image_sizes: Optional[List[List[int]]] = None,
         return_dict: Optional[bool] = None,
     ) -> Union[Tuple, CausalLMOutputWithPast]:
-        
-        import pdb; pdb.set_trace()
 
         if inputs_embeds is None:
             (
@@ -416,6 +414,8 @@ class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
                     output_hidden_states=output_hidden_states,
                     return_dict=return_dict,
                 )
+
+        import pdb; pdb.set_trace()
 
         hidden_states = outputs[0]
         logits = self.lm_head(hidden_states)
