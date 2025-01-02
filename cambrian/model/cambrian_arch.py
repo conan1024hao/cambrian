@@ -361,8 +361,6 @@ class CambrianMetaForCausalLM(ABC):
         final_height = final_width  = int(image_token_len**0.5)
 
         final_image_features_list = []
-        
-        print("---1---")
 
         # only needed for sva
         vision_tower_aux_feature_list_final = None
@@ -371,10 +369,11 @@ class CambrianMetaForCausalLM(ABC):
         
         print(image_aux_list)
         print(image_aux_list[0].shape)
+        
+        print("vision tower")
+        print(vision_tower_aux_list[0])
 
         image_aux_features_list = self.encode_images(image_aux_list)
-        
-        print("---2---")
 
         if self.get_model().config.mm_projector_type == 'sva':
             vision_tower_aux_feature_list = []
