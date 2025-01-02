@@ -418,15 +418,15 @@ A conversation between a user and an LLM-based AI assistant. The assistant gives
     sep="<|im_end|>",
 )
 
-conv_gemma = Conversation(
-    system="""""",
-    roles=("<start_of_turn>user\n", "<start_of_turn>model\n"),
-    version="gemma",
-    messages=(),
-    offset=0,
-    sep_style=SeparatorStyle.GEMMA,
-    sep="<end_of_turn>\n",
-)
+# conv_gemma = Conversation(
+#     system="""""",
+#     roles=("<start_of_turn>user\n", "<start_of_turn>model\n"),
+#     version="gemma",
+#     messages=(),
+#     offset=0,
+#     sep_style=SeparatorStyle.GEMMA,
+#     sep="<end_of_turn>\n",
+# )
 conv_gemma_instruct = Conversation(
     system="""You are Amasia, a highly intelligent multimodal AI trained by NYU Vision X. 
     As a multimodal AI, you have the ability to process and analyze images. Whenever an image is present in the conversation, very carefully examine it and consider its content when formulating your response.
@@ -438,18 +438,18 @@ conv_gemma_instruct = Conversation(
     sep_style=SeparatorStyle.GEMMA,
     sep="<end_of_turn>\n")
 
-conv_amasia_gemma = Conversation(
-    system="""You are Amasia, a highly intelligent multimodal AI trained by NYU Vision X. 
-    As a multimodal AI, you have the ability to process and analyze images. Whenever an image is present in the conversation, very carefully examine it and consider its content when formulating your response.
-    You should give concise responses to very simple questions, but provide thorough responses to more complex and open-ended questions. """,
-    roles=("user", "model"),
-    version="amasia_gemma",
-    messages=(),
-    offset=0,
-    sep_style=SeparatorStyle.GEMMA,
-    sep="",
-    sep2="<eos>",
-)
+# conv_amasia_gemma = Conversation(
+#     system="""You are Amasia, a highly intelligent multimodal AI trained by NYU Vision X. 
+#     As a multimodal AI, you have the ability to process and analyze images. Whenever an image is present in the conversation, very carefully examine it and consider its content when formulating your response.
+#     You should give concise responses to very simple questions, but provide thorough responses to more complex and open-ended questions. """,
+#     roles=("user", "model"),
+#     version="amasia_gemma",
+#     messages=(),
+#     offset=0,
+#     sep_style=SeparatorStyle.GEMMA,
+#     sep="",
+#     sep2="<eos>",
+# )
 
 conv_cambrian_plain = Conversation(
     system="",
