@@ -1959,7 +1959,6 @@ def train(INDEX, attn_implementation=None):
                 model_name,
                 config=config,
                 cache_dir=training_args.cache_dir,
-                do_sample=True,
                 torch_dtype=(torch.bfloat16 if training_args.bf16 else None),
                 **bnb_model_from_pretrained_args,
             )
