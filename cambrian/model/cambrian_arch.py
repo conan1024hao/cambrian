@@ -386,6 +386,7 @@ class CambrianMetaForCausalLM(ABC):
                 print(getattr(self.get_model(), 'mm_projector_aux_{}'.format(aux_i)))
                 
                 model_tmp = getattr(self.get_model(), 'mm_projector_aux_{}'.format(aux_i))
+                print(model_tmp)
                 print(list(model_tmp.parameters())[0].device)
                 assert False
 

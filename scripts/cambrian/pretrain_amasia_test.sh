@@ -14,8 +14,8 @@ export IMAGE_FOLDER="/mnt/disks/storage/data/finetune_data" &&
 export CKPT_NAME="amasia_test" &&
 export CKPT_DIR="/home/$USER/$CKPT_NAME" &&
 
-# export TPU_PROCESS_BOUNDS=1,1,1
-# export TPU_VISIBLE_CHIPS=0
+export TPU_PROCESS_BOUNDS=1,1,1
+export TPU_VISIBLE_CHIPS=0
 
 python cambrian/train/train_tpu.py \
     --model_name_or_path $MODEL_PATH \
