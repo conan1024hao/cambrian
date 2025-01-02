@@ -114,6 +114,7 @@ class CambrianGemmaModel(CambrianMetaModel, Gemma2Model):
             inputs_embeds = self.embed_tokens(input_ids)
         
         logger.info("--forward--3--") # FIXME
+        assert False
 
         self._use_flash_attention_2 = getattr(self, '_use_flash_attention_2', False)
         self._use_sdpa = getattr(self, '_use_sdpa', True)
@@ -266,7 +267,6 @@ class CambrianGemmaModel(CambrianMetaModel, Gemma2Model):
         hidden_states = self.norm(hidden_states)
 
         logger.info("--forward--5--") # FIXME
-        assert False
 
         # add hidden states from the last decoder layer
         if output_hidden_states:
