@@ -27,14 +27,14 @@ from cambrian.utils import IS_XLA_AVAILABLE
 from ..cambrian_arch import CambrianMetaForCausalLM, CambrianMetaModel
 
 
-class CambrianConfig(Gemma2Config):
+class CambrianGemmaConfig(Gemma2Config):
     model_type = "cambrian_gemma"
 
     debug = "debug"
 
 
 class CambrianGemmaModel(CambrianMetaModel, Gemma2Model):
-    config_class = CambrianConfig
+    config_class = CambrianGemmaConfig
 
     def __init__(self, config: Gemma2Config):
         super(CambrianGemmaModel, self).__init__(config)
