@@ -2072,8 +2072,8 @@ def train(INDEX, attn_implementation=None):
         tokenizer.pad_token = "<|reserved_special_token_0|>"
         tokenizer.pad_token_id = 128002
     elif model_args.version == "gemma":  # HACK
-        tokenizer.pad_token = "<unused0>"
-        tokenizer.pad_token_id = 7
+        tokenizer.pad_token = "<eos>"
+        tokenizer.pad_token_id = 1
     else:
         tokenizer.pad_token = tokenizer.unk_token
         if model_args.version in conversation_lib.conv_templates:
