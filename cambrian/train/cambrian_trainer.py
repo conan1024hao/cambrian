@@ -225,8 +225,6 @@ class CambrianTrainer(Trainer):
 
         if self.args.n_gpu > 1:
             loss = loss.mean()  # mean() to average on multi-gpu parallel training
-        
-        assert False # FIXME
 
         if self.use_apex:
             with amp.scale_loss(loss, self.optimizer) as scaled_loss:
