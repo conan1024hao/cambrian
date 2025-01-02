@@ -324,6 +324,8 @@ class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
         return_dict: Optional[bool] = None,
     ) -> Union[Tuple, CausalLMOutputWithPast]:
 
+        print("inputs_embeds", inputs_embeds)
+
         if inputs_embeds is None:
             (
                 input_ids,
@@ -352,6 +354,8 @@ class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
             output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
         )
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
+        
+        assert False
 
         if IS_XLA_AVAILABLE:
             # Very Important for TorchXLA
@@ -366,7 +370,6 @@ class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
         )
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
-        import pdb; pdb.set_trace()
         # training
         if IS_XLA_AVAILABLE:
             # decoder outputs consists of (dec_features, layer_state, dec_hidden, dec_attn)

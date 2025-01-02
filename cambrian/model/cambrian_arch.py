@@ -18,16 +18,16 @@ from abc import ABC, abstractmethod
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
 from ezcolorlog import root_logger as logger
+
+from cambrian.constants import (DEFAULT_IM_END_TOKEN, DEFAULT_IM_START_TOKEN,
+                                DEFAULT_IMAGE_PATCH_TOKEN, IGNORE_INDEX,
+                                IMAGE_TOKEN_INDEX)
+from cambrian.utils import IS_XLA_AVAILABLE
 
 from .multimodal_encoder.builder import build_vision_tower_aux_list
 from .multimodal_projector.builder import build_vision_projector
 from .vision_sampler import VisionTokenSampler
-
-from cambrian.constants import IGNORE_INDEX, IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_PATCH_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN
-
-from cambrian.utils import IS_XLA_AVAILABLE
 
 
 class CambrianMetaModel:
@@ -341,6 +341,7 @@ class CambrianMetaForCausalLM(ABC):
         self, input_ids, position_ids, attention_mask, past_key_values, labels,
         images, image_aux_attention_masks_list=None, image_sizes=None
     ):
+        
         # vision_tower = self.get_vision_tower()
         vision_tower_aux_list = self.get_model().get_vision_tower_aux_list()
         if vision_tower_aux_list is None or images is None or input_ids.shape[1] == 1:
