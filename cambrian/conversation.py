@@ -434,7 +434,7 @@ conv_gemma_instruct = Conversation(
     You should give concise responses to very simple questions, but provide thorough responses to more complex and open-ended questions. """,
     roles=("<start_of_turn>user\n", "<start_of_turn>model\n"),
     version="gemma",
-    messages=[],
+    messages=(),
     offset=0,
     sep_style=SeparatorStyle.GEMMA,
     sep="<end_of_turn>\n")
