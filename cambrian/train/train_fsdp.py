@@ -42,7 +42,8 @@ from cambrian.constants import (DEFAULT_IM_END_TOKEN, DEFAULT_IM_START_TOKEN,
                                 IMAGE_TOKEN_INDEX)
 from cambrian.mm_utils import (tokenizer_image_token,
                                tokenizer_image_token_llama3)
-from cambrian.model import (CambrianGemmaForCausalLM, CambrianLlamaForCausalLM,
+from cambrian.model import (CambrianGemmaConfig, CambrianGemmaForCausalLM,
+                            CambrianLlamaForCausalLM,
                             CambrianMistralForCausalLM)
 from cambrian.model.language_model.cambrian_phi3 import CambrianPhi3ForCausalLM
 from cambrian.train.cambrian_trainer import CambrianTrainer
@@ -1952,8 +1953,11 @@ def train(INDEX, attn_implementation=None):
             logger.warning(
                 f"Vision tower, loading CambrianGemmaForCausalLM: {model_args.model_name_or_path}"
             )
+            config = CambrianGemmaConfig()
+            config.num_hidden_layers = 2 # FIXME
             model = CambrianGemmaForCausalLM.from_pretrained(
                 model_name,
+                config=config,
                 cache_dir=training_args.cache_dir,
                 do_sample=True,
                 torch_dtype=(torch.bfloat16 if training_args.bf16 else None),
