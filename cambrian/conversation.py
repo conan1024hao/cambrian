@@ -171,16 +171,14 @@ class Conversation:
                 else:
                     ret += ""
         elif self.sep_style == SeparatorStyle.GEMMA:
-            ret = "" if self.system == "" else self.system + self.sep + "\n"
+            ret = self.system + self.sep
             for role, message in messages:
                 if message:
                     if type(message) is tuple:
-                        message, images, _ = message
-                        message = "<image>" * len(images) + message
-                    ret += role + "\n" + message + self.sep + "\n"
+                        message, _, _ = message
+                    ret += role + message + self.sep
                 else:
-                    ret += role + "\n"
-            return ret
+                    ret += role
         elif self.sep_style == SeparatorStyle.PHI3:
             ret = self.system + self.sep
             for i, (role, message) in enumerate(messages):
