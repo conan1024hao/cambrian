@@ -14,6 +14,9 @@ export IMAGE_FOLDER="/mnt/disks/storage/data/finetune_data" &&
 export CKPT_NAME="amasia_test" &&
 export CKPT_DIR="/home/$USER/$CKPT_NAME" &&
 
+export TPU_PROCESS_BOUNDS=1,1,1
+export TPU_VISIBLE_CHIPS=0
+
 python cambrian/train/train_tpu.py \
     --model_name_or_path $MODEL_PATH \
     --version gemma \
@@ -56,7 +59,7 @@ python cambrian/train/train_tpu.py \
     --tf32 False \
     --model_max_length 2048 \
     --gradient_checkpointing True \
-    --dataloader_num_workers 4 \
+    --dataloader_num_workers 1 \
     --lazy_preprocess True \
     --report_to wandb \
     --run_name $CKPT_NAME \
