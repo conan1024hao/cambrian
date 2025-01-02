@@ -409,6 +409,7 @@ class CambrianMetaForCausalLM(ABC):
                 final_image_features_list.append(query_features_i)
             
             print("---4---")
+            assert False
 
             if IS_XLA_AVAILABLE:
                 vision_tower_aux_feature_list_final, vision_tower_aux_attention_masks_list_final = self.rearrange_vision_tower_features_train(vision_tower_aux_feature_list, image_aux_attention_masks_list, final_height)
