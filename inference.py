@@ -27,7 +27,7 @@ from cambrian.utils import disable_torch_init
 # conv_mode = "llama_3" 
 
 # amasia
-conv_mode = "amasia_gemma"
+conv_mode = "gemma"
 
 # cambrian-34b
 # conv_mode = "chatml_direct"
