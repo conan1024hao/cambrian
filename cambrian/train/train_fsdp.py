@@ -2059,6 +2059,9 @@ def train(INDEX, attn_implementation=None):
     elif model_args.version == "llama_v3":
         tokenizer.pad_token = "<|reserved_special_token_0|>"
         tokenizer.pad_token_id = 128002
+    elif model_args.version == "gemma":
+        tokenizer.pad_token = "<pad>"
+        tokenizer.pad_token_id = 0
     else:
         tokenizer.pad_token = tokenizer.unk_token
         if model_args.version in conversation_lib.conv_templates:
