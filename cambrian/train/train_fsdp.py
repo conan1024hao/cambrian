@@ -1617,8 +1617,6 @@ def make_supervised_data_module(
     data_collator_kwargs = {
         "tokenizer": tokenizer,
     }
-    
-    print("---dataset processed---") # FIXME 
 
     if hasattr(data_args, "image_token_len"):
         data_collator_kwargs["image_token_len"] = data_args.image_token_len
