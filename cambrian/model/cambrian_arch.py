@@ -369,6 +369,7 @@ class CambrianMetaForCausalLM(ABC):
         image_aux_features_list = self.encode_images(image_aux_list)
         
         print("---2---")
+        assert False
 
         if self.get_model().config.mm_projector_type == 'sva':
             vision_tower_aux_feature_list = []
@@ -384,7 +385,6 @@ class CambrianMetaForCausalLM(ABC):
                 vision_tower_aux_feature_list.append(image_aux_features)
 
             print("---3---")
-            assert False
 
             # perform vision sampling for each query group
             for query_group_i, query_num in enumerate(query_num_list):
