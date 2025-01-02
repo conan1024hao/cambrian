@@ -1,11 +1,12 @@
-from PIL import Image
-from io import BytesIO
-import base64
-import torch
-import math
 import ast
+import base64
+import math
+from io import BytesIO
 
+import torch
+from PIL import Image
 from transformers import StoppingCriteria
+
 from cambrian.constants import IMAGE_TOKEN_INDEX
 from cambrian.utils import IS_XLA_AVAILABLE
 
@@ -202,6 +203,8 @@ def process_images(images, image_processor, model_cfg):
 
 
 def tokenizer_image_token(prompt, tokenizer, image_token_index=IMAGE_TOKEN_INDEX, return_tensors=None):
+    print(prompt)
+    assert False
     prompt_chunks = [tokenizer(chunk).input_ids for chunk in prompt.split('<image>')]
 
     def insert_separator(X, sep):

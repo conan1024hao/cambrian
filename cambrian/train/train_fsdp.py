@@ -1048,7 +1048,7 @@ def preprocess(
     if conversation_lib.default_conversation.version == "phi3":
         return preprocess_phi3(sources, tokenizer, has_image=has_image)
     if conversation_lib.default_conversation.version == "gemma":
-        return preprocess_mpt(sources, tokenizer, has_image=has_image)
+        return preprocess_mpt(sources, tokenizer, has_image=has_image) # HACK
 
     # add end signal and concatenate together
     conversations = []
