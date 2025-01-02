@@ -213,6 +213,8 @@ class CambrianTrainer(Trainer):
             return super()._get_train_sampler()
 
     def training_step(self, model: nn.Module, inputs: Dict[str, Union[torch.Tensor, Any]], num_items_in_batch=None) -> torch.Tensor:
+        assert False
+        
         model.train()
         inputs = self._prepare_inputs(inputs)
 

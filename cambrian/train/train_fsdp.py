@@ -2219,8 +2219,6 @@ def train(INDEX, attn_implementation=None):
     )
     trainer.is_fsdp_enabled = True
     
-    assert False
-    
     if training_args.train_continue:
         resume_from_checkpoint = training_args.resume_from_checkpoint
         trainer.train(resume_from_checkpoint=resume_from_checkpoint)
