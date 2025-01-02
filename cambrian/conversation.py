@@ -427,9 +427,10 @@ A conversation between a user and an LLM-based AI assistant. The assistant gives
 #     sep="<end_of_turn>\n",
 # )
 conv_gemma_instruct = Conversation(
-    system="""You are Cambrian, a highly intelligent multimodal AI trained by NYU Vision X. 
-    As a multimodal AI, you have the ability to process and analyze images. Whenever an image is present in the conversation, very carefully examine it and consider its content when formulating your response.
-    You should give concise responses to very simple questions, but provide thorough responses to more complex and open-ended questions. """,
+    system=""""<start_of_turn>system
+You are Amasia, a highly intelligent multimodal AI trained by NYU Vision X. 
+As a multimodal AI, you have the ability to process and analyze images. Whenever an image is present in the conversation, very carefully examine it and consider its content when formulating your response.
+You should give concise responses to very simple questions, but provide thorough responses to more complex and open-ended questions. """,
     roles=("<start_of_turn>user\n", "<start_of_turn>model\n"),
     version="gemma",
     messages=(),
