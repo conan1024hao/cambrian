@@ -1827,7 +1827,7 @@ def train(INDEX, attn_implementation=None):
 
     transformers.models.llama.modeling_llama.LlamaRMSNorm.forward = forward
     transformers.models.mistral.modeling_mistral.MistralRMSNorm.forward = forward
-    transformers.models.gemma.modeling_gemma.GemmaRMSNorm.forward = forward
+    transformers.models.gemma2.modeling_gemma2.Gemma2RMSNorm.forward = forward
 
     def new_forward_conv(self, input):
         if self.bias is None:
