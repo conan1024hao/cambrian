@@ -379,6 +379,7 @@ class CambrianMetaForCausalLM(ABC):
                 print(image_aux_features)
                 print(image_aux_features.shape)
                 print(dtype)
+                assert False
 
                 # # HACK
                 # if image_aux_features.dim() == 3:
