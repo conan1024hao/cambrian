@@ -385,6 +385,9 @@ class CambrianMetaForCausalLM(ABC):
                 print(image_aux_features.shape)
                 print(getattr(self.get_model(), 'mm_projector_aux_{}'.format(aux_i)))
                 
+                model_tmp = getattr(self.get_model(), 'mm_projector_aux_{}'.format(aux_i))
+                print(next(model_tmp.parameters()).device)
+                assert False
 
                 # # HACK
                 # if image_aux_features.dim() == 3:
@@ -392,7 +395,7 @@ class CambrianMetaForCausalLM(ABC):
 
                 image_aux_features = getattr(self.get_model(), 'mm_projector_aux_{}'.format(aux_i))(image_aux_features).to(dtype)
                 
-                assert False
+                
                 
                 if aux_i == 0:
                     global_context_feature = image_aux_features.mean(1).view(bs, 1, 1, -1)
