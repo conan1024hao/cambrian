@@ -342,17 +342,12 @@ class CambrianMetaForCausalLM(ABC):
         images, image_aux_attention_masks_list=None, image_sizes=None
     ):
         
-        print("---1---")
-        
         # vision_tower = self.get_vision_tower()
         vision_tower_aux_list = self.get_model().get_vision_tower_aux_list()
         if vision_tower_aux_list is None or images is None or input_ids.shape[1] == 1:
             return input_ids, position_ids, attention_mask, past_key_values, None, labels, None, None, None, None
 
         image_aux_list = images
-        
-        print("---2---")
-        assert False
 
         bs = image_aux_list[0].shape[0]
         dtype = image_aux_list[0].dtype
@@ -363,6 +358,8 @@ class CambrianMetaForCausalLM(ABC):
         final_height = final_width  = int(image_token_len**0.5)
 
         final_image_features_list = []
+        
+        print("---1---")
 
         # only needed for sva
         vision_tower_aux_feature_list_final = None
@@ -370,6 +367,10 @@ class CambrianMetaForCausalLM(ABC):
         global_context_feature_final = None
 
         image_aux_features_list = self.encode_images(image_aux_list)
+        
+        print("---2---")
+        
+        assert False
 
         if self.get_model().config.mm_projector_type == 'sva':
             vision_tower_aux_feature_list = []

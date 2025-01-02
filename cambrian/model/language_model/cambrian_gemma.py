@@ -323,7 +323,7 @@ class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
         image_sizes: Optional[List[List[int]]] = None,
         return_dict: Optional[bool] = None,
     ) -> Union[Tuple, CausalLMOutputWithPast]:
-        
+
         if inputs_embeds is None:
             (
                 input_ids,
