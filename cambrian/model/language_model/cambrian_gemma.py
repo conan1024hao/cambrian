@@ -41,7 +41,7 @@ class CambrianGemmaModel(CambrianMetaModel, Gemma2Model):
 
 
 class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
-    config_class = CambrianConfig
+    config_class = CambrianGemmaConfig
 
     def __init__(self, config, spmd_debug=None, spmd_mesh=None, spmd_fsdp_sharding=None):
         super(Gemma2ForCausalLM, self).__init__(config)
@@ -175,5 +175,5 @@ class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
             inputs['image_sizes'] = image_sizes
         return inputs
 
-AutoConfig.register("cambrian_gemma", CambrianConfig)
-AutoModelForCausalLM.register(CambrianConfig, CambrianGemmaForCausalLM)
+AutoConfig.register("cambrian_gemma", CambrianGemmaConfig)
+AutoModelForCausalLM.register(CambrianGemmaConfig, CambrianGemmaForCausalLM)
