@@ -42,8 +42,6 @@ class CambrianGemmaConfig(Gemma2Config):
 
     debug = "debug"
     
-    # FIXME
-    num_hidden_layers = 10
 
 
 class CambrianGemmaModel(CambrianMetaModel, Gemma2Model):
@@ -51,6 +49,7 @@ class CambrianGemmaModel(CambrianMetaModel, Gemma2Model):
 
     def __init__(self, config: Gemma2Config):
         super(CambrianGemmaModel, self).__init__(config)
+        config.num_hidden_layers = 2 # FIXME
 
     def forward(
         self,
