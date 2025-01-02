@@ -383,6 +383,8 @@ class CambrianMetaForCausalLM(ABC):
                 
                 image_aux_features = getattr(self.get_model(), 'mm_projector_aux_{}'.format(aux_i))(image_aux_features).to(dtype)
                 
+                assert False
+                
                 print(image_aux_features)
                 print(image_aux_features.shape)
                 
