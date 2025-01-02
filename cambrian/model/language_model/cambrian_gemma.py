@@ -17,47 +17,48 @@ from typing import List, Optional, Tuple, Union
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss, MSELoss
 from transformers import (AutoConfig, AutoModelForCausalLM, Gemma2Config,
                           Gemma2ForCausalLM, Gemma2Model)
-from transformers.cache_utils import Cache, DynamicCache
 from transformers.generation.utils import GenerateOutput
-from transformers.modeling_attn_mask_utils import (
-    AttentionMaskConverter, _prepare_4d_attention_mask,
-    _prepare_4d_causal_attention_mask,
-    _prepare_4d_causal_attention_mask_for_sdpa)
-from transformers.modeling_outputs import (BaseModelOutputWithPast,
-                                           CausalLMOutputWithPast)
-from transformers.utils import logging
+from transformers.modeling_outputs import CausalLMOutputWithPast
 
 from cambrian.utils import IS_XLA_AVAILABLE
 
 from ..cambrian_arch import CambrianMetaForCausalLM, CambrianMetaModel
 
-logger = logging.get_logger(__name__)
 
-class CambrianGemmaConfig(Gemma2Config):
+class CambrianConfig(Gemma2Config):
     model_type = "cambrian_gemma"
+
+    debug = "debug"
 
 
 class CambrianGemmaModel(CambrianMetaModel, Gemma2Model):
-    config_class = CambrianGemmaConfig
+    config_class = CambrianConfig
 
     def __init__(self, config: Gemma2Config):
         super(CambrianGemmaModel, self).__init__(config)
 
 
 class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
-    config_class = CambrianGemmaConfig
+    config_class = CambrianConfig
 
     def __init__(self, config, spmd_debug=None, spmd_mesh=None, spmd_fsdp_sharding=None):
         super(Gemma2ForCausalLM, self).__init__(config)
         
-        
+        config.spmd_debug = spmd_debug
+        config.spmd_mesh = spmd_mesh
+        config.spmd_fsdp_sharding = spmd_fsdp_sharding
         self.model = CambrianGemmaModel(config)
+        self.pretraining_tp = config.pretraining_tp
+        self.vocab_size = config.vocab_size
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
-
+        self.spmd_mesh = spmd_mesh
+        self.spmd_debug = spmd_debug
+        self.spmd_fsdp_sharding = spmd_fsdp_sharding
+        
+        # TODO(jonbolin): Removing the SPMD mesh from the config since it is not serializable.
+        del config.spmd_mesh
         
         # Initialize weights and apply final processing
         self.post_init()
@@ -77,11 +78,10 @@ class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
         images: Optional[torch.FloatTensor] = None,
-        image_aux_attention_masks_list: Optional[List[torch.Tensor]] = None,
         image_sizes: Optional[List[List[int]]] = None,
         return_dict: Optional[bool] = None,
     ) -> Union[Tuple, CausalLMOutputWithPast]:
-        
+
         if inputs_embeds is None:
             (
                 input_ids,
@@ -89,11 +89,7 @@ class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
                 attention_mask,
                 past_key_values,
                 inputs_embeds,
-                labels,
-                vision_tower_aux_feature_list,
-                vision_tower_aux_attention_masks_list,
-                final_vision_feature_size,
-                global_context_feature
+                labels
             ) = self.prepare_inputs_labels_for_multimodal(
                 input_ids,
                 position_ids,
@@ -101,106 +97,30 @@ class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
                 past_key_values,
                 labels,
                 images,
-                image_aux_attention_masks_list,
                 image_sizes
             )
+
         if IS_XLA_AVAILABLE:
             # Very Important for TorchXLA
             #self.model.gradient_checkpointing = False
                 
             from torch_xla.utils.checkpoint import checkpoint
-
-            # self.model.gradient_checkpointing = True
             self.model._gradient_checkpointing_func = checkpoint
 
-        output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
-        output_hidden_states = (
-            output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
-        )
-        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
-
-        # training
-        if IS_XLA_AVAILABLE:
-            # decoder outputs consists of (dec_features, layer_state, dec_hidden, dec_attn)
-            outputs = self.model(
-                input_ids=input_ids,
-                attention_mask=attention_mask,
-                position_ids=position_ids,
-                past_key_values=past_key_values,
-                inputs_embeds=inputs_embeds,
-                labels=labels,
-                use_cache=use_cache,
-                output_attentions=output_attentions,
-                output_hidden_states=output_hidden_states,
-                return_dict=return_dict,
-                vision_tower_aux_feature_list=vision_tower_aux_feature_list,
-                vision_tower_aux_attention_masks_list=vision_tower_aux_attention_masks_list, 
-                final_vision_feature_size=final_vision_feature_size,
-                global_context_feature=global_context_feature,
-            )
-
-        # inference
-        else:
-            if hasattr(self, "vision_tower_aux_feature_list"):
-            # decoder outputs consists of (dec_features, layer_state, dec_hidden, dec_attn)
-                outputs = self.model(
-                    input_ids=input_ids,
-                    attention_mask=attention_mask,
-                    position_ids=position_ids,
-                    past_key_values=past_key_values,
-                    inputs_embeds=inputs_embeds,
-                    labels=labels,
-                    use_cache=use_cache,
-                    output_attentions=output_attentions,
-                    output_hidden_states=output_hidden_states,
-                    return_dict=return_dict,
-                    vision_tower_aux_feature_list=vision_tower_aux_feature_list if inputs_embeds is None else self.vision_tower_aux_feature_list,
-                    vision_tower_aux_attention_masks_list=vision_tower_aux_attention_masks_list if inputs_embeds is None else self.vision_tower_aux_attention_masks_list, 
-                    final_vision_feature_size=final_vision_feature_size if inputs_embeds is None else self.final_vision_feature_size,
-                    global_context_feature=global_context_feature if inputs_embeds is None else self.global_context_feature,
-                )
-            else:
-                outputs = self.model(
-                    input_ids=input_ids,
-                    attention_mask=attention_mask,
-                    position_ids=position_ids,
-                    past_key_values=past_key_values,
-                    inputs_embeds=inputs_embeds,
-                    use_cache=use_cache,
-                    output_attentions=output_attentions,
-                    output_hidden_states=output_hidden_states,
-                    return_dict=return_dict,
-                )
-
-        hidden_states = outputs[0]
-        logits = self.lm_head(hidden_states)
-        logits = logits.float()
-
-        loss = None
-        if labels is not None:
-            # Shift so that tokens < n predict n
-            shift_logits = logits[..., :-1, :].contiguous()
-            shift_labels = labels[..., 1:].contiguous()
-            # Flatten the tokens
-            loss_fct = CrossEntropyLoss()
-            shift_logits = shift_logits.view(-1, self.config.vocab_size)
-            shift_labels = shift_labels.view(-1)
-            # Enable model parallelism
-            shift_labels = shift_labels.to(shift_logits.device)
-            loss = loss_fct(shift_logits, shift_labels)
-
-        if not return_dict:
-            output = (logits,) + outputs[1:]
-            return (loss,) + output if loss is not None else output
-
-        return CausalLMOutputWithPast(
-            loss=loss,
-            logits=logits,
-            past_key_values=outputs.past_key_values,
-            hidden_states=outputs.hidden_states,
-            attentions=outputs.attentions,
+        output = super().forward(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            position_ids=position_ids,
+            past_key_values=past_key_values,
+            inputs_embeds=inputs_embeds,
+            labels=labels,
+            use_cache=use_cache,
+            output_attentions=output_attentions,
+            output_hidden_states=output_hidden_states,
+            return_dict=return_dict
         )
 
+        return output
 
     @torch.no_grad()
     def generate(
@@ -222,11 +142,7 @@ class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
                 attention_mask,
                 _,
                 inputs_embeds,
-                _,
-                vision_tower_aux_feature_list,
-                vision_tower_aux_attention_masks_list,
-                final_vision_feature_size,
-                global_context_feature,
+                _
             ) = self.prepare_inputs_labels_for_multimodal(
                 inputs,
                 position_ids,
@@ -236,10 +152,6 @@ class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
                 images,
                 image_sizes=image_sizes
             )
-            self.vision_tower_aux_feature_list = vision_tower_aux_feature_list
-            self.vision_tower_aux_attention_masks_list = vision_tower_aux_attention_masks_list
-            self.final_vision_feature_size = final_vision_feature_size
-            self.global_context_feature = global_context_feature
         else:
             inputs_embeds = self.get_model().embed_tokens(inputs)
 
@@ -263,6 +175,5 @@ class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
             inputs['image_sizes'] = image_sizes
         return inputs
 
-
-AutoConfig.register("cambrian_gemma", CambrianGemmaConfig)
-AutoModelForCausalLM.register(CambrianGemmaConfig, CambrianGemmaForCausalLM)
+AutoConfig.register("cambrian_gemma", CambrianConfig)
+AutoModelForCausalLM.register(CambrianConfig, CambrianGemmaForCausalLM)
