@@ -369,14 +369,16 @@ class CambrianMetaForCausalLM(ABC):
         image_aux_features_list = self.encode_images(image_aux_list)
         
         print("---2---")
-        assert False
 
         if self.get_model().config.mm_projector_type == 'sva':
             vision_tower_aux_feature_list = []
-            vision_tower_aux_attention_masks_list = []
             # get vision tokens from each vision tower
             for aux_i in range(len(vision_tower_aux_list)):
                 image_aux_features = image_aux_features_list[aux_i]
+                
+                print(image_aux_features)
+                print(image_aux_features.shape)
+                assert False
 
                 image_aux_features = getattr(self.get_model(), 'mm_projector_aux_{}'.format(aux_i))(image_aux_features).to(dtype)
                 if aux_i == 0:
