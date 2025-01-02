@@ -41,6 +41,9 @@ class CambrianGemmaConfig(Gemma2Config):
     model_type = "cambrian_gemma"
 
     debug = "debug"
+    
+    # FIXME
+    num_hidden_layers = 2
 
 
 class CambrianGemmaModel(CambrianMetaModel, Gemma2Model):
