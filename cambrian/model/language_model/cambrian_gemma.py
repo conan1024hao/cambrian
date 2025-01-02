@@ -97,7 +97,7 @@ class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
                 past_key_values,
                 labels,
                 images,
-                image_aux_attention_masks_list: Optional[List[torch.Tensor]] = None,
+                image_aux_attention_masks_list,
                 image_sizes
             )
 
