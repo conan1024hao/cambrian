@@ -317,6 +317,10 @@ class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
         return_dict: Optional[bool] = None,
         cache_position = None
     ) -> Union[Tuple, CausalLMOutputWithPast]:
+        
+        # FIXME
+        # print how many layers are there
+        print(f"Number of layers: {len(self.model.layers)}")
 
         if inputs_embeds is None:
             (
@@ -355,9 +359,6 @@ class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
         )
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
         
-        # FIXME
-        # print how many layers are there
-        print(f"Number of layers: {len(self.model.layers)}")
 
         # training
         if IS_XLA_AVAILABLE:
