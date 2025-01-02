@@ -1953,7 +1953,7 @@ def train(INDEX, attn_implementation=None):
             logger.warning(
                 f"Vision tower, loading CambrianGemmaForCausalLM: {model_args.model_name_or_path}"
             )
-            config = CambrianGemmaConfig()
+            config = CambrianGemmaConfig.from_pretrained(model_name)
             config.num_hidden_layers = 2 # FIXME
             model = CambrianGemmaForCausalLM.from_pretrained(
                 model_name,
