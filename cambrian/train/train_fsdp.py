@@ -1887,6 +1887,29 @@ def train(INDEX, attn_implementation=None):
 
         if "yi" in model_args.model_name_or_path.lower():
             use_bfloat16 = True
+        
+        elif "llama" in model_name.lower():
+            logger.warning(
+                f"Vision tower, loading CambrianLlamaForCausalLM: {model_args.model_name_or_path}"
+            )
+            if (
+                hasattr(training_args, "fsdp_config")
+                and "transformer_layer_cls_to_wrap" in training_args.fsdp_config.keys()
+            ):
+                logger.warning(
+                    f"Replacing training_args.fsdp_config.transformer_layer_cls_to_wrap with LlamaDecoderLayer. Previous value: {training_args.fsdp_config['transformer_layer_cls_to_wrap']}"
+                )
+                training_args.fsdp_config["transformer_layer_cls_to_wrap"] = [
+                    "LlamaDecoderLayer"
+                ]
+            model = CambrianLlamaForCausalLM.from_pretrained(
+                model_name,
+                cache_dir=training_args.cache_dir,
+                do_sample=True,
+                torch_dtype=(torch.bfloat16 if use_bfloat16 else None),
+                **bnb_model_from_pretrained_args,
+            )
+            transformers.models.llama.modeling_llama.LlamaRMSNorm.forward = forward
 
         elif "mistral" in model_name.lower():
             logger.warning(
