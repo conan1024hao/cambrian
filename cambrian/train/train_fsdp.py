@@ -1945,8 +1945,8 @@ def train(INDEX, attn_implementation=None):
             logger.warning(
                 f"Vision tower, loading CambrianGemmaForCausalLM: {model_args.model_name_or_path}"
             )
-            # config = CambrianGemmaConfig.from_pretrained(model_name)
-            # config.num_hidden_layers = 1 # FIXME
+            config = CambrianGemmaConfig.from_pretrained(model_name)
+            config.num_hidden_layers = 1 # FIXME
             if (
                 hasattr(training_args, "fsdp_config")
                 and "transformer_layer_cls_to_wrap" in training_args.fsdp_config.keys()
@@ -1959,8 +1959,8 @@ def train(INDEX, attn_implementation=None):
                 ]
             model = CambrianGemmaForCausalLM.from_pretrained(
                 model_name,
+                config=config, # FIXME
                 cache_dir=training_args.cache_dir,
-                do_sample=True,
                 torch_dtype=(torch.bfloat16 if training_args.bf16 else None),
                 **bnb_model_from_pretrained_args,
             )
