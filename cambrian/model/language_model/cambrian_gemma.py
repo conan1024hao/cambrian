@@ -67,8 +67,6 @@ class CambrianGemmaModel(CambrianMetaModel, Gemma2Model):
         global_context_feature: Optional[torch.Tensor] = None,
     ) -> Union[Tuple, BaseModelOutputWithPast]:
         
-        logger.info("--forward--1--") # FIXME
-        
         output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
         output_hidden_states = (
             output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
@@ -93,8 +91,6 @@ class CambrianGemmaModel(CambrianMetaModel, Gemma2Model):
                     "`use_cache=True` is incompatible with gradient checkpointing. Setting `use_cache=False`..."
                 )
                 use_cache = False
-        
-        logger.info("--forward--2--") # FIXME
 
         past_key_values_length = 0
         if use_cache:
@@ -112,9 +108,6 @@ class CambrianGemmaModel(CambrianMetaModel, Gemma2Model):
 
         if inputs_embeds is None:
             inputs_embeds = self.embed_tokens(input_ids)
-        
-        logger.info("--forward--3--") # FIXME
-        assert False
 
         self._use_flash_attention_2 = getattr(self, '_use_flash_attention_2', False)
         self._use_sdpa = getattr(self, '_use_sdpa', True)
@@ -135,8 +128,6 @@ class CambrianGemmaModel(CambrianMetaModel, Gemma2Model):
             attention_mask = _prepare_4d_causal_attention_mask(
                 attention_mask, (batch_size, seq_length), inputs_embeds, past_key_values_length
             )
-
-        logger.info("--forward--4--") # FIXME
 
         # embed positions
         hidden_states = inputs_embeds
@@ -266,8 +257,6 @@ class CambrianGemmaModel(CambrianMetaModel, Gemma2Model):
 
         hidden_states = self.norm(hidden_states)
 
-        logger.info("--forward--5--") # FIXME
-
         # add hidden states from the last decoder layer
         if output_hidden_states:
             all_hidden_states += (hidden_states,)
@@ -364,6 +353,7 @@ class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
         )
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
         
+        assert False # FIXME
 
         # training
         if IS_XLA_AVAILABLE:
