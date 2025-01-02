@@ -627,8 +627,8 @@ conv_phi3 = Conversation(
 # default_conversation = conv_chatml_direct
 # default_conversation = conv_vicuna_v1
 
-# default_conversation = conv_gemma_instruct
-default_conversation = conv_llama_3
+# default_conversation = conv_llama_3
+default_conversation = conv_gemma_instruct
 
 conv_templates = {
     "default": conv_vicuna_v0,
