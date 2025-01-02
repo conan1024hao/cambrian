@@ -369,8 +369,6 @@ class CambrianMetaForCausalLM(ABC):
         image_aux_features_list = self.encode_images(image_aux_list)
         
         print("---2---")
-        
-        assert False
 
         if self.get_model().config.mm_projector_type == 'sva':
             vision_tower_aux_feature_list = []
@@ -384,6 +382,8 @@ class CambrianMetaForCausalLM(ABC):
                     global_context_feature = image_aux_features.mean(1).view(bs, 1, 1, -1)
 
                 vision_tower_aux_feature_list.append(image_aux_features)
+
+            print("---3---")
 
             # perform vision sampling for each query group
             for query_group_i, query_num in enumerate(query_num_list):
@@ -407,15 +407,22 @@ class CambrianMetaForCausalLM(ABC):
                                                     align_corners=False).to(dtype=query_features_i.dtype)
                     query_features_i = query_features_i.permute(0, 2, 3, 1).contiguous().flatten(1, 2)
                 final_image_features_list.append(query_features_i)
+            
+            print("---4---")
 
             if IS_XLA_AVAILABLE:
                 vision_tower_aux_feature_list_final, vision_tower_aux_attention_masks_list_final = self.rearrange_vision_tower_features_train(vision_tower_aux_feature_list, image_aux_attention_masks_list, final_height)
                 global_context_feature_final = global_context_feature.expand(-1, final_height*final_width, 1, -1).flatten(0,1)
+            
+            print("---5---")
+            
         else:
             final_image_features_list = image_aux_features_list
 
         image_features = torch.cat(final_image_features_list, -1)
         image_features = self.get_model().mm_projector(image_features).to(dtype)
+        
+        print("---6---")
 
         if IS_XLA_AVAILABLE:
             image_features = image_features.view(image_features.shape[0], final_height, final_width, -1)
@@ -425,6 +432,8 @@ class CambrianMetaForCausalLM(ABC):
             ), dim=2)
             image_features = image_features.flatten(1, 2)
             final_size = [(final_height, final_width)]*bs
+            
+            print("---7---")
 
         else:
             image_features = image_features.view(bs, final_height, final_width, -1)
@@ -461,6 +470,8 @@ class CambrianMetaForCausalLM(ABC):
         if getattr(self.config, 'tune_mm_mlp_adapter', False) and getattr(self.config, 'mm_use_im_start_end', False):
             raise NotImplementedError
 
+        print("---8---")
+
         if IS_XLA_AVAILABLE:
 
             # embed the input_ids
@@ -479,6 +490,8 @@ class CambrianMetaForCausalLM(ABC):
                 image_token_indices = [-1] + torch.where(cur_input_ids == IMAGE_TOKEN_INDEX)[0].tolist() + [cur_input_ids.shape[0]]
 
                 cur_input_embeds_im_replaced = []
+                
+                print("---9---")
 
                 prev_image_length = 0
                 for i in range(len(image_token_indices) - 1):
