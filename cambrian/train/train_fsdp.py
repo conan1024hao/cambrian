@@ -1960,8 +1960,7 @@ def train(INDEX, attn_implementation=None):
                 **bnb_model_from_pretrained_args,
             )
             # FIXME
-            # print how many layers are there
-            print(f"Number of layers: {len(model.layers)}")
+            print("model params", sum(p.numel() for p in model.parameters()))
             assert False
 
         else:
