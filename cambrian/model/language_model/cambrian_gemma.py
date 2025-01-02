@@ -77,6 +77,7 @@ class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
         images: Optional[torch.FloatTensor] = None,
+        image_aux_attention_masks_list: Optional[List[torch.Tensor]] = None,
         image_sizes: Optional[List[List[int]]] = None,
         return_dict: Optional[bool] = None,
     ) -> Union[Tuple, CausalLMOutputWithPast]:
@@ -96,6 +97,7 @@ class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
                 past_key_values,
                 labels,
                 images,
+                image_aux_attention_masks_list: Optional[List[torch.Tensor]] = None,
                 image_sizes
             )
 
