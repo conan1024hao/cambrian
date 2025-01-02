@@ -324,10 +324,6 @@ class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
         return_dict: Optional[bool] = None,
     ) -> Union[Tuple, CausalLMOutputWithPast]:
         
-        print("hahahahahaha")
-        print("inputs_embeds", inputs_embeds)
-        assert False
-
         if inputs_embeds is None:
             (
                 input_ids,
