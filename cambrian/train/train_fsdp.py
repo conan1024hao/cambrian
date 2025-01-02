@@ -1590,9 +1590,6 @@ class DataCollatorForSupervisedDataset(object):
                 ]
             else:
                 batch["images"] = image_aux_list
-        
-        # FIXME
-        print("batch prepared", batch)
 
         return batch
 

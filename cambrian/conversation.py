@@ -435,7 +435,7 @@ You should give concise responses to very simple questions, but provide thorough
     version="gemma",
     messages=(),
     offset=0,
-    sep_style=SeparatorStyle.GEMMA,
+    sep_style=SeparatorStyle.MPT,
     sep="<end_of_turn>")
 
 # conv_amasia_gemma = Conversation(
