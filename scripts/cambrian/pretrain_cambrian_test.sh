@@ -8,7 +8,7 @@ export WANDB_API_KEY="5b8322df11b04a8895325a5bf6ef8cbba0dd64a2" &&
 export WANDB_ENTITY=conan1024hao &&
 export WANDB_PROJECT=amasia &&
 
-export MODEL_PATH="/mnt/disks/storage/llm_ckpts/Meta-Llama-3.1-8B-Instruct" &&
+export MODEL_PATH="meta-llama/Llama-3.2-1B-Instruct" &&
 export DATA_PATH="/home/$USER/cambrian/Cambrian1k.jsonl" &&
 export IMAGE_FOLDER="/mnt/disks/storage/data/finetune_data" &&
 export CKPT_NAME="cambrian_test" &&
