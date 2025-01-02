@@ -1008,6 +1008,11 @@ def preprocess_gemma(
                     f" (ignored)"
                 )
 
+    # FIXME
+    print("Gemma data preprocessing:")
+    print("input_ids:", input_ids)
+    print("labels:", targets)
+
     return dict(
         input_ids=input_ids,
         labels=targets,
@@ -1594,6 +1599,9 @@ class DataCollatorForSupervisedDataset(object):
                 ]
             else:
                 batch["images"] = image_aux_list
+        
+        # FIXME
+        print("batch prepared", batch)
 
         return batch
 
