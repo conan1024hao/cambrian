@@ -342,12 +342,17 @@ class CambrianMetaForCausalLM(ABC):
         images, image_aux_attention_masks_list=None, image_sizes=None
     ):
         
+        print("---1---")
+        
         # vision_tower = self.get_vision_tower()
         vision_tower_aux_list = self.get_model().get_vision_tower_aux_list()
         if vision_tower_aux_list is None or images is None or input_ids.shape[1] == 1:
             return input_ids, position_ids, attention_mask, past_key_values, None, labels, None, None, None, None
 
         image_aux_list = images
+        
+        print("---2---")
+        assert False
 
         bs = image_aux_list[0].shape[0]
         dtype = image_aux_list[0].dtype
