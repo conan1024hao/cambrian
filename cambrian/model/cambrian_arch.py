@@ -351,6 +351,9 @@ class CambrianMetaForCausalLM(ABC):
 
         bs = image_aux_list[0].shape[0]
         dtype = image_aux_list[0].dtype
+        
+        print("bs: ", bs)
+        print("dtype: ", dtype)
 
         image_token_len = self.get_model().config.image_token_len
         query_num_list = self.get_model().config.query_num_list
@@ -367,6 +370,7 @@ class CambrianMetaForCausalLM(ABC):
         global_context_feature_final = None
         
         print(image_aux_list)
+        print(image_aux_list[0].shape)
 
         image_aux_features_list = self.encode_images(image_aux_list)
         
@@ -380,7 +384,6 @@ class CambrianMetaForCausalLM(ABC):
                 
                 print(image_aux_features)
                 print(image_aux_features.shape)
-                print(dtype)
                 print(getattr(self.get_model(), 'mm_projector_aux_{}'.format(aux_i)))
                 assert False
 

@@ -22,8 +22,8 @@ python cambrian/train/train_tpu.py \
     --version llama_v3 \
     --data_path $DATA_PATH \
     --image_folder $IMAGE_FOLDER \
-    --vision_tower_aux_list '["siglip/CLIP-ViT-SO400M-14-384", "openai/clip-vit-large-patch14-336", "facebook/dinov2-giant-res378", "clip-convnext-XXL-multi-stage"]' \
-    --vision_tower_aux_token_len_list '[576, 576, 576, 9216]' \
+    --vision_tower_aux_list '["siglip/CLIP-ViT-SO400M-14-384"]' \
+    --vision_tower_aux_token_len_list '[576]' \
     --image_token_len 576 \
     --num_query_group 1 \
     --query_num_list '[576]' \
