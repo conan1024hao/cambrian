@@ -2201,6 +2201,9 @@ def train(INDEX, attn_implementation=None):
 
     log_rank0("Configuring data module...")
     data_module = make_supervised_data_module(tokenizer=tokenizer, data_args=data_args)
+    
+    # debug
+    import pdb; pdb.set_trace()
 
     if training_args.bf16:
         model = model.to(dtype=torch.float32)
