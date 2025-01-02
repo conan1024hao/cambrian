@@ -171,15 +171,15 @@ class Conversation:
                 else:
                     ret += ""
         elif self.sep_style == SeparatorStyle.GEMMA:
-            seps = [self.sep, self.sep2]
-            ret = self.system + seps[0]
+            ret = ""
             for i, (role, message) in enumerate(messages):
+                assert role == self.roles[i % 2], "Conversation should alternate user/assistant/user/assistant/..."
                 if message:
                     if type(message) is tuple:
                         message, _, _ = message
-                    ret += "<start_of_turn>" + role + "\n" + message + "<end_of_turn>\n" + seps[i % 2]
+                    ret += role + message + self.sep
                 else:
-                    ret += "<start_of_turn>" + role + "\n"
+                    ret += role
         elif self.sep_style == SeparatorStyle.PHI3:
             ret = self.system + self.sep
             for i, (role, message) in enumerate(messages):
