@@ -56,6 +56,7 @@ class CambrianGemmaForCausalLM(Gemma2ForCausalLM, CambrianMetaForCausalLM):
         
         
         self.model = CambrianGemmaModel(config)
+        self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
 
         
         # Initialize weights and apply final processing
