@@ -1947,6 +1947,16 @@ def train(INDEX, attn_implementation=None):
             )
             # config = CambrianGemmaConfig.from_pretrained(model_name)
             # config.num_hidden_layers = 1 # FIXME
+            if (
+                hasattr(training_args, "fsdp_config")
+                and "transformer_layer_cls_to_wrap" in training_args.fsdp_config.keys()
+            ):
+                logger.warning(
+                    f"Replacing training_args.fsdp_config.transformer_layer_cls_to_wrap with Gemma2DecoderLayer. Previous value: {training_args.fsdp_config['transformer_layer_cls_to_wrap']}"
+                )
+                training_args.fsdp_config["transformer_layer_cls_to_wrap"] = [
+                    "Gemma2DecoderLayer"
+                ]
             model = CambrianGemmaForCausalLM.from_pretrained(
                 model_name,
                 cache_dir=training_args.cache_dir,
@@ -1954,6 +1964,8 @@ def train(INDEX, attn_implementation=None):
                 torch_dtype=(torch.bfloat16 if training_args.bf16 else None),
                 **bnb_model_from_pretrained_args,
             )
+            transformers.models.gemma2.modeling_gemma2.Gemma2RMSNorm.forward = forward
+
             # FIXME
             print("model params", sum(p.numel() for p in model.parameters()))
 
