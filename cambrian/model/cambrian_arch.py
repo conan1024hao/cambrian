@@ -365,6 +365,8 @@ class CambrianMetaForCausalLM(ABC):
         vision_tower_aux_feature_list_final = None
         vision_tower_aux_attention_masks_list_final = None
         global_context_feature_final = None
+        
+        print(image_aux_list)
 
         image_aux_features_list = self.encode_images(image_aux_list)
         
@@ -379,6 +381,7 @@ class CambrianMetaForCausalLM(ABC):
                 print(image_aux_features)
                 print(image_aux_features.shape)
                 print(dtype)
+                print(getattr(self.get_model(), 'mm_projector_aux_{}'.format(aux_i)))
                 assert False
 
                 # # HACK
