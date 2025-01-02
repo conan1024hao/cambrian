@@ -203,8 +203,6 @@ def process_images(images, image_processor, model_cfg):
 
 
 def tokenizer_image_token(prompt, tokenizer, image_token_index=IMAGE_TOKEN_INDEX, return_tensors=None):
-    print("prompt")
-    print()
     prompt_chunks = [tokenizer(chunk).input_ids for chunk in prompt.split('<image>')]
 
     def insert_separator(X, sep):
@@ -223,9 +221,6 @@ def tokenizer_image_token(prompt, tokenizer, image_token_index=IMAGE_TOKEN_INDEX
         if return_tensors == 'pt':
             return torch.tensor(input_ids, dtype=torch.long)
         raise ValueError(f'Unsupported tensor type: {return_tensors}')
-
-    print("input_ids")
-    print(input_ids)
     
     return input_ids
 

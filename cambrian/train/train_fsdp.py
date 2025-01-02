@@ -798,6 +798,11 @@ def preprocess_mpt(
                     f" (ignored)"
                 )
 
+    print("input_ids")
+    print(input_ids)
+    print("labels")
+    print(targets)
+
     return dict(
         input_ids=input_ids,
         labels=targets,
