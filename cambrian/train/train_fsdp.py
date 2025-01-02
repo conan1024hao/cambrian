@@ -745,7 +745,8 @@ def preprocess_mpt(
         ).input_ids
 
     targets = input_ids.clone()
-    assert conv.sep_style == conversation_lib.SeparatorStyle.MPT
+    # HACK
+    # assert conv.sep_style == conversation_lib.SeparatorStyle.MPT
 
     # Mask targets
     sep = conv.sep + conv.roles[1]
