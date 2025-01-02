@@ -1964,7 +1964,6 @@ def train(INDEX, attn_implementation=None):
             )
             # FIXME
             print("model params", sum(p.numel() for p in model.parameters()))
-            assert False
 
         else:
             logger.warning(
