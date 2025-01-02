@@ -1959,6 +1959,10 @@ def train(INDEX, attn_implementation=None):
                 torch_dtype=(torch.bfloat16 if training_args.bf16 else None),
                 **bnb_model_from_pretrained_args,
             )
+            # FIXME
+            # print how many layers are there
+            print(f"Number of layers: {len(model.layers)}")
+            assert False
 
         else:
             logger.warning(
